@@ -263,12 +263,65 @@
         #referral-link { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--secondary-color); text-align: left; }
         #copy-link-btn { padding: 10px 15px; background: var(--primary-color); color: var(--background-color); border: none; border-radius: 8px; cursor: pointer; margin-left: 10px; }
 
+        /* NEW: Referral List Styling */
+        .referral-item {
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 5px solid var(--accent-color);
+        }
+        .referral-item-name {
+            font-weight: 600;
+        }
+        .referral-item-balance {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
         /* Assets/Wallet Page */
         .wallet-card { background: linear-gradient(45deg, var(--primary-color), var(--accent-color)); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
         .wallet-card p { font-size: 1rem; opacity: 0.8; }
         .wallet-card h2 { font-size: 2.5rem; margin-top: 5px; }
         .withdraw-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--container-bg); color: var(--primary-color); font-size: 1.1rem; font-weight: 600; cursor: pointer; }
         
+        /* NEW: Withdrawal History Styling */
+        .withdrawal-history-item {
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .history-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .history-item-header h4 {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+        .history-item-status {
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .history-item-status.pending { background-color: #f39c12; color: #fff; }
+        .history-item-status.approved { background-color: #2ecc71; color: #fff; }
+        .history-item-status.rejected { background-color: #e74c3c; color: #fff; }
+        .history-item-details p {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+        .history-item-details p:last-child { margin-bottom: 0; }
+
         /* Form Group (used in Withdrawal and Profile) */
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 5px; }
@@ -419,6 +472,11 @@
                     <span id="referral-link">Loading your link...</span>
                     <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
                 </div>
+                <!-- NEW: Referrals List Section -->
+                <h3 style="margin-top: 30px; margin-bottom: 15px; text-align: left; font-size: 1.2rem;">My Referrals</h3>
+                <div id="referrals-list">
+                    <!-- Referral data will be loaded here by JS -->
+                </div>
             </div>
 
             <!-- Promote Page -->
@@ -431,6 +489,13 @@
             <div id="assets-page" class="page">
                 <div class="wallet-card"><p>Total Balance</p><h2 id="wallet-balance">$0.00</h2></div>
                 <button id="show-withdrawal-page-btn" class="withdraw-btn">Withdraw</button>
+                 <!-- NEW: Withdrawal History Section -->
+                <div class="history-section" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px; font-size: 1.2rem;">Withdrawal History</h3>
+                    <div id="withdrawal-history-list">
+                        <!-- History items will be loaded here by JS -->
+                    </div>
+                </div>
             </div>
             
             <!-- Withdrawal Page -->
@@ -560,15 +625,10 @@
     const showLoginLink = document.getElementById('show-login');
 
     // --- INITIALIZATION ---
-    // This function runs as soon as the page loads.
     window.onload = () => {
-        // Create a URLSearchParams object from the current URL's query string.
         const urlParams = new URLSearchParams(window.location.search);
-        // Get the value of the 'ref' parameter (e.g., from a link like "...?ref=ABC123").
         const refCode = urlParams.get('ref');
-        // If a referral code exists in the URL...
         if (refCode) {
-            // ...automatically fill the invitation code input field on the registration form.
             document.getElementById('register-invite-code').value = refCode;
         }
         setupWithdrawalFormListeners();
@@ -659,14 +719,8 @@
         document.getElementById('user-name-display').innerText = userData.username || 'User';
         document.getElementById('user-balance-header').innerText = `$${balance}`;
         document.getElementById('wallet-balance').innerText = `$${balance}`;
-        
-        // --- EDITED SECTION ---
-        // Create a proper, full URL for the referral link.
-        // It takes the current page's URL (without any existing parameters) and adds the referral code.
         const baseUrl = window.location.origin + window.location.pathname;
         document.getElementById('referral-link').innerText = `${baseUrl}?ref=${userData.referralCode}`;
-        // --- END EDITED SECTION ---
-
         document.getElementById('profile-email').innerText = userData.email || '';
         document.getElementById('profile-ref-code').innerText = userData.referralCode || '';
         document.getElementById('profile-username').value = userData.username || '';
@@ -715,20 +769,18 @@
                 const pageId = item.dataset.page;
                 if (!pageId) return;
                 navigateToPage(pageId);
+                
+                // Call specific functions based on the page being viewed
                 if (pageId === 'tasks-page') renderTaskStatusPage();
+                if (pageId === 'invite-page') loadReferrals();
+                if (pageId === 'assets-page') loadWithdrawalHistory();
             });
         });
 
         document.getElementById('show-withdrawal-page-btn').addEventListener('click', () => navigateToPage('withdrawal-page'));
         
-        // Listeners for YouTube tutorial navigation
-        document.getElementById('show-youtube-tutorial-btn').addEventListener('click', () => {
-            navigateToPage('youtube-tutorial-page');
-        });
-
-        document.getElementById('back-to-youtube-btn').addEventListener('click', () => {
-            navigateToPage('youtube-page');
-        });
+        document.getElementById('show-youtube-tutorial-btn').addEventListener('click', () => navigateToPage('youtube-tutorial-page'));
+        document.getElementById('back-to-youtube-btn').addEventListener('click', () => navigateToPage('youtube-page'));
     }
     
     // --- HOME PAGE SLIDER ---
@@ -857,6 +909,36 @@
             alert('Referral link copied to clipboard!');
         }).catch(() => alert('Failed to copy link.'));
     });
+    
+    // NEW: Load Referrals Function
+    function loadReferrals() {
+        const referralsContainer = document.getElementById('referrals-list');
+        referralsContainer.innerHTML = '<div class="spinner"></div>';
+
+        if (!userData || !userData.referralCode) {
+            referralsContainer.innerHTML = '<p>Your referral code is not available yet.</p>';
+            return;
+        }
+
+        db.ref('users').orderByChild('referredBy').equalTo(userData.referralCode).on('value', snapshot => {
+            referralsContainer.innerHTML = '';
+            if (snapshot.exists()) {
+                snapshot.forEach(childSnapshot => {
+                    const referral = childSnapshot.val();
+                    const balance = referral.balance ? referral.balance.toFixed(3) : '0.000';
+                    const itemHtml = `
+                        <div class="referral-item">
+                            <span class="referral-item-name">${referral.username}</span>
+                            <span class="referral-item-balance">$${balance}</span>
+                        </div>
+                    `;
+                    referralsContainer.innerHTML += itemHtml;
+                });
+            } else {
+                referralsContainer.innerHTML = '<p>You have not referred anyone yet.</p>';
+            }
+        });
+    }
 
     document.getElementById('profile-update-form').addEventListener('submit', (e) => {
         e.preventDefault();
@@ -870,6 +952,42 @@
     });
     
     // --- WITHDRAWAL SYSTEM ---
+    // NEW: Load Withdrawal History Function
+    function loadWithdrawalHistory() {
+        const historyContainer = document.getElementById('withdrawal-history-list');
+        historyContainer.innerHTML = '<div class="spinner"></div>';
+
+        db.ref('withdrawals').orderByChild('uid').equalTo(currentUser.uid).on('value', snapshot => {
+            historyContainer.innerHTML = '';
+            if (snapshot.exists()) {
+                let withdrawals = [];
+                snapshot.forEach(childSnapshot => {
+                    withdrawals.push(childSnapshot.val());
+                });
+                
+                withdrawals.reverse().forEach(withdrawal => {
+                    const date = new Date(withdrawal.timestamp).toLocaleString();
+                    const itemHtml = `
+                        <div class="withdrawal-history-item">
+                            <div class="history-item-header">
+                                <h4>$${withdrawal.amount.toFixed(2)} - ${withdrawal.network}</h4>
+                                <span class="history-item-status ${withdrawal.status}">${withdrawal.status}</span>
+                            </div>
+                            <div class="history-item-details">
+                                <p><strong>Date:</strong> ${date}</p>
+                                <p><strong>Total Deducted:</strong> $${withdrawal.totalDeducted.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                    historyContainer.innerHTML += itemHtml;
+                });
+
+            } else {
+                historyContainer.innerHTML = '<p>No withdrawal history found.</p>';
+            }
+        });
+    }
+
     function setupWithdrawalFormListeners() {
         const networkSelect = document.getElementById('network-select');
         const amountInput = document.getElementById('withdrawal-amount');
@@ -913,7 +1031,7 @@
             fee = amount * FEE_EASYPAISA;
         }
 
-        const receiveAmount = amount; // The user receives the amount they enter
+        const receiveAmount = amount; 
         const totalDeducted = amount + fee;
 
         document.getElementById('withdrawal-fee').innerText = `$${fee.toFixed(2)}`;
