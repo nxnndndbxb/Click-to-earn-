@@ -260,7 +260,7 @@
         #invite-page h2 { color: var(--primary-color); margin-bottom: 20px; }
         #invite-page p { margin-bottom: 30px; }
         .referral-box { background: var(--container-bg); padding: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
-        #referral-link { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--secondary-color); }
+        #referral-link { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--secondary-color); text-align: left; }
         #copy-link-btn { padding: 10px 15px; background: var(--primary-color); color: var(--background-color); border: none; border-radius: 8px; cursor: pointer; margin-left: 10px; }
 
         /* Assets/Wallet Page */
@@ -560,10 +560,15 @@
     const showLoginLink = document.getElementById('show-login');
 
     // --- INITIALIZATION ---
+    // This function runs as soon as the page loads.
     window.onload = () => {
+        // Create a URLSearchParams object from the current URL's query string.
         const urlParams = new URLSearchParams(window.location.search);
+        // Get the value of the 'ref' parameter (e.g., from a link like "...?ref=ABC123").
         const refCode = urlParams.get('ref');
+        // If a referral code exists in the URL...
         if (refCode) {
+            // ...automatically fill the invitation code input field on the registration form.
             document.getElementById('register-invite-code').value = refCode;
         }
         setupWithdrawalFormListeners();
@@ -654,7 +659,14 @@
         document.getElementById('user-name-display').innerText = userData.username || 'User';
         document.getElementById('user-balance-header').innerText = `$${balance}`;
         document.getElementById('wallet-balance').innerText = `$${balance}`;
-        document.getElementById('referral-link').innerText = `yourapp.com/?ref=${userData.referralCode}`;
+        
+        // --- EDITED SECTION ---
+        // Create a proper, full URL for the referral link.
+        // It takes the current page's URL (without any existing parameters) and adds the referral code.
+        const baseUrl = window.location.origin + window.location.pathname;
+        document.getElementById('referral-link').innerText = `${baseUrl}?ref=${userData.referralCode}`;
+        // --- END EDITED SECTION ---
+
         document.getElementById('profile-email').innerText = userData.email || '';
         document.getElementById('profile-ref-code').innerText = userData.referralCode || '';
         document.getElementById('profile-username').value = userData.username || '';
