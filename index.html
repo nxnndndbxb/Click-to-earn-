@@ -440,6 +440,7 @@
             <div id="clicks-page" class="page task-list-page">
                 <button class="back-btn" data-page="home-page"><i class="fas fa-arrow-left"></i> Back</button>
                 <h2 class="page-header">Website Clicks</h2>
+                <button id="show-clicks-tutorial-btn" class="auth-btn" style="width: 100%; margin: 0 0 20px 0; padding: 12px;">How to complete clicks task</button>
                 <div id="clicks-task-list"><div class="spinner"></div></div>
             </div>
             <div id="youtube-page" class="page task-list-page">
@@ -603,6 +604,15 @@
                 <h2 class="page-header">YouTube Task Tutorial</h2>
                 <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px;">
                     <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/oi3Ad1Ss1Ec" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- Clicks Tutorial Page -->
+            <div id="clicks-tutorial-page" class="page">
+                <button class="back-btn" data-page="clicks-page"><i class="fas fa-arrow-left"></i> Back to Tasks</button>
+                <h2 class="page-header">Clicks Task Tutorial</h2>
+                <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px;">
+                    <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/AaPsMQARnaM" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                 </div>
             </div>
 
@@ -841,6 +851,7 @@
         
         document.getElementById('show-withdrawal-page-btn').addEventListener('click', () => navigateToPage('withdrawal-page'));
         document.getElementById('show-youtube-tutorial-btn').addEventListener('click', () => navigateToPage('youtube-tutorial-page'));
+        document.getElementById('show-clicks-tutorial-btn').addEventListener('click', () => navigateToPage('clicks-tutorial-page'));
     }
     
     // --- HOME PAGE SLIDER ---
