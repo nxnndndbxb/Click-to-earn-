@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click to Earn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* General Styling */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #00ffc3;
+            --secondary-color: #ffffff;
+            --background-color: #1a1a2e;
+            --container-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #e0e0e0;
+            --accent-color: #f92a82;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 900px;
+            background: var(--background-color);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Auth Container Styling */
+        .auth-container {
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.3);
+            overflow-y: auto;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        .auth-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .auth-form h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: var(--secondary-color);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid var(--container-bg);
+            border-radius: 10px;
+            background: var(--container-bg);
+            color: var(--secondary-color);
+            font-size: 1rem;
+            outline: none;
+        }
+        
+        .input-group input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary-color);
+        }
+        
+        .auth-btn {
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            color: var(--background-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .auth-btn:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        .auth-btn:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .toggle-link {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-color);
+        }
+
+        .toggle-link a {
+            color: var(--primary-color);
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        /* App Container Styling */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #1f1f3a;
+            width: 100%;
+            z-index: 10;
+        }
+        .app-header .user-info h1 {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        #user-balance-header {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        .profile-icon {
+            font-size: 2.2rem;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .profile-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            padding-bottom: 80px; /* Space for nav bar */
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .page-header {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Home Page */
+        .slider-container { width: 100%; height: 150px; border-radius: 15px; overflow: hidden; position: relative; margin: 20px 0 25px; }
+        .slide { width: 100%; height: 100%; position: absolute; opacity: 0; transition: opacity 1s ease-in-out; background-size: cover; background-position: center; display: flex; justify-content: center; align-items: center; color: white; font-size: 1.2rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); padding: 10px; text-align: center;}
+        .slide.active { opacity: 1; }
+
+        .task-buttons { display: flex; justify-content: space-around; align-items: center; margin-bottom: 25px; }
+        .task-btn-circle { width: 60px; height: 60px; border-radius: 50%; background: var(--container-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.3s ease; }
+        .task-btn-circle:hover { background-color: var(--primary-color); color: var(--background-color); transform: scale(1.1); }
+        .task-btn-circle i { font-size: 1.5rem; }
+        .task-btn-circle span { font-size: 0.7rem; margin-top: 5px;}
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .stat-card { background: var(--container-bg); padding: 15px; border-radius: 10px; text-align: center; }
+        .stat-card h3 { font-size: 1.5rem; color: var(--primary-color); }
+        .stat-card p { font-size: 0.8rem; }
+
+        /* Task Pages (Generic) */
+        .task-card { background: var(--container-bg); padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid var(--primary-color); display: flex; justify-content: space-between; align-items: center; }
+        .task-card.completed { border-left: 5px solid gray; opacity: 0.6; }
+        .task-card-info h3 { margin-bottom: 5px; }
+        .task-card-info p { font-size: 0.9rem; color: var(--text-color); }
+        .task-action-btn { padding: 8px 15px; border: none; border-radius: 8px; background: var(--primary-color); color: var(--background-color); font-weight: 600; cursor: pointer; }
+        .task-action-btn:disabled { background: gray; cursor: not-allowed; }
+
+        /* Single Task Page */
+        #single-task-page .task-details { background: var(--container-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        #single-task-page h3 { margin-bottom: 10px; }
+        #single-task-page p { margin-bottom: 20px; }
+        .visit-link-btn { display: block; width: 100%; text-align: center; padding: 15px; margin-bottom: 30px; background: var(--accent-color); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; }
+        #proof-form label { display: block; margin-bottom: 10px; }
+        #proof-form textarea { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid gray; background: #333; color: white; margin-bottom: 10px; min-height: 100px; }
+
+        /* Tasks Status Page */
+        .task-status-tabs { display: flex; margin-bottom: 20px; }
+        .tab-btn { flex: 1; padding: 10px; background: var(--container-bg); border: none; color: var(--text-color); cursor: pointer; }
+        .tab-btn.active { background: var(--primary-color); color: var(--background-color); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Invite Page */
+        #invite-page { text-align: center; }
+        #invite-page h2 { color: var(--primary-color); margin-bottom: 20px; }
+        #invite-page p { margin-bottom: 30px; }
+        .referral-box { background: var(--container-bg); padding: 20px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
+        #referral-link { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--secondary-color); }
+        #copy-link-btn { padding: 10px 15px; background: var(--primary-color); color: var(--background-color); border: none; border-radius: 8px; cursor: pointer; margin-left: 10px; }
+
+        /* Assets/Wallet Page */
+        .wallet-card { background: linear-gradient(45deg, var(--primary-color), var(--accent-color)); padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 30px; }
+        .wallet-card p { font-size: 1rem; opacity: 0.8; }
+        .wallet-card h2 { font-size: 2.5rem; margin-top: 5px; }
+        .withdraw-btn { width: 100%; padding: 15px; border: none; border-radius: 10px; background: var(--container-bg); color: var(--primary-color); font-size: 1.1rem; font-weight: 600; cursor: pointer; }
+        
+        /* Form Group (used in Withdrawal and Profile) */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group select, .form-group input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--container-bg); background: var(--container-bg); color: var(--secondary-color); font-size: 1rem; }
+
+        /* Withdrawal Page specific */
+        .withdrawal-summary { background: var(--container-bg); padding: 15px; border-radius: 10px; margin: 10px 0 20px 0; }
+        .withdrawal-summary p { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        .withdrawal-summary p:last-child { margin-bottom: 0; }
+        .withdrawal-summary span { font-weight: 600; color: var(--primary-color); }
+
+        /* Profile Page */
+        #profile-page .profile-info { background: var(--container-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        #profile-page .profile-info p { margin-bottom: 10px; }
+        #profile-page .profile-info span { color: var(--primary-color); font-weight: 600; }
+        #logout-btn { background: var(--accent-color); margin-top: 20px; }
+
+        /* Bottom Navigation */
+        .bottom-nav { position: absolute; bottom: 0; left: 0; width: 100%; height: 70px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--container-bg); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-color); cursor: pointer; transition: all 0.3s ease; flex-basis: 0; flex-grow: 1; }
+        .nav-item.active, .nav-item:hover { color: var(--primary-color); transform: scale(1.1); }
+        .nav-item i { font-size: 1.5rem; }
+        .nav-item span { font-size: 0.7rem; margin-top: 5px; }
+        
+        .hidden { display: none !important; }
+        
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--primary-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <!-- AUTHENTICATION CONTAINER -->
+    <div id="auth-container">
+        <div class="logo"><i class="fas fa-hand-pointer"></i> ClickToEarn</div>
+
+        <!-- Login Form -->
+        <form id="login-form" class="auth-form">
+            <h2>Welcome Back!</h2>
+            <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="login-email" placeholder="Email" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="login-password" placeholder="Password" required></div>
+            <button type="submit" class="auth-btn">Login</button>
+            <p class="toggle-link">Don't have an account? <a id="show-register">Register</a></p>
+        </form>
+
+        <!-- Registration Form -->
+        <form id="register-form" class="auth-form hidden">
+            <h2>Create Account</h2>
+            <div class="input-group"><i class="fas fa-user"></i><input type="text" id="register-username" placeholder="Username" required></div>
+            <div class="input-group"><i class="fas fa-envelope"></i><input type="email" id="register-email" placeholder="Email" required></div>
+            <div class="input-group"><i class="fas fa-lock"></i><input type="password" id="register-password" placeholder="Password" required></div>
+            <div class="input-group"><i class="fas fa-user-plus"></i><input type="text" id="register-invite-code" placeholder="Invitation Code (Optional)"></div>
+            <button type="submit" class="auth-btn">Register</button>
+            <p class="toggle-link">Already have an account? <a id="show-login">Login</a></p>
+        </form>
+    </div>
+
+    <!-- MAIN APP CONTAINER (shown after login) -->
+    <div id="app-container" class="app-container hidden">
+        <header class="app-header">
+            <div class="user-info">
+                <h1>Hello, <span id="user-name-display">User</span>!</h1>
+                <div id="user-balance-header">$0.00</div>
+            </div>
+            <div id="profile-icon-btn" class="profile-icon" data-page="profile-page">
+                <i class="fas fa-user-circle"></i>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Home Page -->
+            <div id="home-page" class="page active">
+                <div class="slider-container">
+                    <div class="slide active" style="background-image: url('https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');"><span>Complete Tasks Daily</span></div>
+                    <div class="slide" style="background-image: url('https://images.pexels.com/photos/416405/pexels-photo-416405.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');"><span>Invite Friends & Earn More</span></div>
+                    <div class="slide" style="background-image: url('https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1');"><span>Withdraw Your Earnings</span></div>
+                </div>
+                
+                <div class="task-buttons">
+                    <div class="task-btn-circle" data-page="clicks-page"><i class="fas fa-mouse-pointer"></i><span>Clicks</span></div>
+                    <div class="task-btn-circle" data-page="youtube-page"><i class="fab fa-youtube"></i><span>YouTube</span></div>
+                    <div class="task-btn-circle" data-page="ads-page"><i class="fas fa-ad"></i><span>Ads</span></div>
+                    <div class="task-btn-circle" data-page="tiktok-page"><i class="fab fa-tiktok"></i><span>TikTok</span></div>
+                </div>
+
+                <h2 style="margin-bottom: 15px; font-size: 1.2rem; text-align:center;">Completed Tasks</h2>
+                <div class="stats-grid">
+                    <div class="stat-card"><h3 id="clicks-completed">0</h3><p>Clicks</p></div>
+                    <div class="stat-card"><h3 id="youtube-completed">0</h3><p>YouTube</p></div>
+                    <div class="stat-card"><h3 id="tiktok-completed">0</h3><p>TikTok</p></div>
+                </div>
+            </div>
+
+            <!-- Task List Pages -->
+            <div id="clicks-page" class="page task-list-page"><h2 class="page-header">Website Clicks</h2><div id="clicks-task-list"><div class="spinner"></div></div></div>
+            <div id="youtube-page" class="page task-list-page">
+                <h2 class="page-header">YouTube Videos</h2>
+                <button id="show-youtube-tutorial-btn" class="auth-btn" style="width: 100%; margin: 0 0 20px 0; padding: 12px;">How to complete YouTube task</button>
+                <div id="youtube-task-list"><div class="spinner"></div></div>
+            </div>
+            <div id="tiktok-page" class="page task-list-page"><h2 class="page-header">TikTok Videos</h2><div id="tiktok-task-list"><div class="spinner"></div></div></div>
+            
+            <!-- Ads Page -->
+            <div id="ads-page" class="page task-list-page">
+                <h2 class="page-header">Watch Ads</h2>
+                <p style="text-align: center; font-size: 1.2rem; margin-top: 50px;">Coming Soon!</p>
+            </div>
+
+            <!-- Single Task Proof Page -->
+            <div id="single-task-page" class="page">
+                <h2 class="page-header">Complete Task</h2>
+                <div class="task-details">
+                    <h3 id="single-task-title">Task Title</h3>
+                    <p id="single-task-reward">Reward: $0.00</p>
+                    <a href="#" id="single-task-link" target="_blank" class="visit-link-btn">Visit Link to Complete Task</a>
+                </div>
+                <form id="proof-form">
+                    <input type="hidden" id="single-task-id">
+                    <input type="hidden" id="single-task-type">
+                    <div class="form-group">
+                        <label for="proof-input">Submit Proof</label>
+                        <textarea id="proof-input" placeholder="e.g., Paste screenshot link or write your username for the task." required></textarea>
+                    </div>
+                    <button type="submit" class="auth-btn">Submit for Review</button>
+                </form>
+            </div>
+
+            <!-- Tasks Status Page -->
+            <div id="tasks-page" class="page">
+                <h2 class="page-header">My Tasks</h2>
+                <div class="task-status-tabs">
+                    <button class="tab-btn active" data-tab="review">Review</button>
+                    <button class="tab-btn" data-tab="approved">Complete</button>
+                    <button class="tab-btn" data-tab="rejected">Rejected</button>
+                </div>
+                <div id="review-content" class="tab-content active"></div>
+                <div id="approved-content" class="tab-content"></div>
+                <div id="rejected-content" class="tab-content"></div>
+            </div>
+
+            <!-- Invite Page -->
+            <div id="invite-page" class="page">
+                <i class="fas fa-users" style="font-size: 5rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+                <h2>Invite Your Friends</h2>
+                <p>Share your referral link with friends and earn 10% of their earnings forever! It's an automatic process.</p>
+                <div class="referral-box">
+                    <span id="referral-link">Loading your link...</span>
+                    <button id="copy-link-btn"><i class="fas fa-copy"></i></button>
+                </div>
+            </div>
+
+            <!-- Promote Page -->
+            <div id="promote-page" class="page">
+                 <h2 class="page-header">Promote</h2>
+                 <p style="text-align: center; font-size: 1.2rem; margin-top: 50px;">Coming Soon!</p>
+            </div>
+
+            <!-- Assets/Wallet Page -->
+            <div id="assets-page" class="page">
+                <div class="wallet-card"><p>Total Balance</p><h2 id="wallet-balance">$0.00</h2></div>
+                <button id="show-withdrawal-page-btn" class="withdraw-btn">Withdraw</button>
+            </div>
+            
+            <!-- Withdrawal Page -->
+            <div id="withdrawal-page" class="page">
+                <h2 class="page-header">Withdraw Funds</h2>
+                <form id="withdrawal-form">
+                    <div class="form-group">
+                        <label for="network-select">Select Method</label>
+                        <select id="network-select" required>
+                            <option value="" disabled selected>--Select Method--</option>
+                            <option value="USDT_TRC20">USDT (TRC20)</option>
+                            <option value="USDT_BEP20">USDT (BEP20)</option>
+                            <option value="Easypaisa">Easypaisa</option>
+                        </select>
+                    </div>
+            
+                    <!-- Crypto Fields -->
+                    <div id="crypto-fields" class="hidden">
+                        <div class="form-group">
+                            <label for="wallet-address">Wallet Address</label>
+                            <input type="text" id="wallet-address" placeholder="Paste your address here">
+                        </div>
+                    </div>
+            
+                    <!-- Easypaisa Fields -->
+                    <div id="easypaisa-fields" class="hidden">
+                        <div class="form-group">
+                            <label for="easypaisa-number">Account Number</label>
+                            <input type="text" id="easypaisa-number" placeholder="e.g., 03xxxxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label for="easypaisa-name">Account Holder Name</label>
+                            <input type="text" id="easypaisa-name" placeholder="Enter full name">
+                        </div>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="withdrawal-amount">Amount to Withdraw ($)</label>
+                        <input type="number" id="withdrawal-amount" placeholder="Minimum $5.00" step="0.01" required>
+                    </div>
+                    
+                    <div class="withdrawal-summary">
+                         <p>Fee: <span id="withdrawal-fee">$0.00</span></p>
+                         <p>You Will Receive: <span id="withdrawal-receive">$0.00</span></p>
+                         <p style="border-top: 1px solid var(--container-bg); padding-top: 8px;">Total Deducted: <span id="withdrawal-total">$0.00</span></p>
+                    </div>
+            
+                    <button type="submit" class="auth-btn">Submit Request</button>
+                </form>
+            </div>
+            
+            <!-- Profile Page -->
+            <div id="profile-page" class="page">
+                <h2 class="page-header">My Profile</h2>
+                <div class="profile-info">
+                    <p>Email: <span id="profile-email"></span></p>
+                    <p>Referral Code: <span id="profile-ref-code"></span></p>
+                </div>
+                <form id="profile-update-form">
+                    <div class="form-group">
+                        <label for="profile-username">Username</label>
+                        <input type="text" id="profile-username" required>
+                    </div>
+                    <button type="submit" class="auth-btn">Save Changes</button>
+                </form>
+                <button id="logout-btn" class="auth-btn">Logout</button>
+            </div>
+
+            <!-- YouTube Tutorial Page -->
+            <div id="youtube-tutorial-page" class="page">
+                <button id="back-to-youtube-btn" class="auth-btn" style="width: auto; margin:0 0 20px 0; padding: 10px 20px;">&larr; Back to Tasks</button>
+                <h2 class="page-header">YouTube Task Tutorial</h2>
+                <div class="video-container" style="position: relative; padding-bottom: 177.77%; height: 0; overflow: hidden; max-width: 100%; border-radius: 15px;">
+                    <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/oi3Ad1Ss1Ec" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- BOTTOM NAVIGATION BAR -->
+        <nav class="bottom-nav">
+            <div class="nav-item active" data-page="home-page"><i class="fas fa-home"></i><span>Home</span></div>
+            <div class="nav-item" data-page="tasks-page"><i class="fas fa-tasks"></i><span>Tasks</span></div>
+            <div class="nav-item" data-page="invite-page"><i class="fas fa-user-plus"></i><span>Invite</span></div>
+            <div class="nav-item" data-page="promote-page"><i class="fas fa-bullhorn"></i><span>Promote</span></div>
+            <div class="nav-item" data-page="assets-page"><i class="fas fa-wallet"></i><span>Assets</span></div>
+        </nav>
+    </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyD7mLBnQ8f9xN1R31sg8aML_wa1Cb4DGiY",
+        authDomain: "click-to-earn-835b4.firebaseapp.com",
+        databaseURL: "https://click-to-earn-835b4-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        projectId: "click-to-earn-835b4",
+        storageBucket: "click-to-earn-835b4.appspot.com",
+        messagingSenderId: "1002237084793",
+        appId: "1:1002237084793:web:7f3b55239a2d67a14e1f7c"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // --- GLOBAL VARIABLES & CONSTANTS ---
+    let currentUser = null;
+    let userData = {};
+    let userSubmissions = {};
+    const PER_TASK_EARNING = 0.02;
+    const MIN_WITHDRAWAL = 5.00;
+    const FEE_CRYPTO = 0.05; // 5%
+    const FEE_EASYPAISA = 0.15; // 15%
+
+    // --- DOM ELEMENTS ---
+    const authContainer = document.getElementById('auth-container');
+    const appContainer = document.getElementById('app-container');
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const showRegisterLink = document.getElementById('show-register');
+    const showLoginLink = document.getElementById('show-login');
+
+    // --- INITIALIZATION ---
+    window.onload = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        if (refCode) {
+            document.getElementById('register-invite-code').value = refCode;
+        }
+        setupWithdrawalFormListeners();
+    };
+    
+    // --- AUTHENTICATION ---
+    showRegisterLink.addEventListener('click', () => {
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+    });
+
+    showLoginLink.addEventListener('click', () => {
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+    });
+
+    registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const inviteCode = document.getElementById('register-invite-code').value;
+
+        auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                const newUser_data = {
+                    username: username, email: email, balance: 0,
+                    referralCode: user.uid.substr(0, 8)
+                };
+                if (inviteCode) newUser_data.referredBy = inviteCode;
+                
+                db.ref('users/' + user.uid).set(newUser_data).then(() => {
+                    alert("Registration successful!");
+                    registerForm.reset();
+                    showLoginLink.click();
+                });
+            })
+            .catch((error) => { alert(`Error: ${error.message}`); });
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        auth.signInWithEmailAndPassword(email, password)
+            .catch((error) => { alert(`Error: ${error.message}`); });
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', () => auth.signOut());
+
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            currentUser = user;
+            authContainer.classList.add('hidden');
+            appContainer.classList.remove('hidden');
+            initializeApp();
+        } else {
+            currentUser = null;
+            appContainer.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        }
+    });
+
+    function initializeApp() {
+        if (!currentUser) return;
+        
+        db.ref('users/' + currentUser.uid).on('value', (snapshot) => {
+            userData = snapshot.val();
+            if (userData) updateUIWithUserData();
+        });
+
+        db.ref('user_submissions/' + currentUser.uid).on('value', (snapshot) => {
+            userSubmissions = snapshot.val() || {};
+            if(document.getElementById('tasks-page').classList.contains('active')) renderTaskStatusPage();
+            updateHomePageStats();
+        });
+
+        setupNavigation();
+        startSlider();
+        loadAllTaskTypes();
+    }
+
+    function updateUIWithUserData() {
+        const balance = userData.balance ? userData.balance.toFixed(3) : '0.00';
+        document.getElementById('user-name-display').innerText = userData.username || 'User';
+        document.getElementById('user-balance-header').innerText = `$${balance}`;
+        document.getElementById('wallet-balance').innerText = `$${balance}`;
+        document.getElementById('referral-link').innerText = `yourapp.com/?ref=${userData.referralCode}`;
+        document.getElementById('profile-email').innerText = userData.email || '';
+        document.getElementById('profile-ref-code').innerText = userData.referralCode || '';
+        document.getElementById('profile-username').value = userData.username || '';
+    }
+    
+    function updateHomePageStats() {
+        let counts = { clicks: 0, youtube: 0, tiktok: 0 };
+        for (const taskId in userSubmissions) {
+            const submission = userSubmissions[taskId];
+            if (submission.status === 'approved' && counts.hasOwnProperty(submission.taskType)) {
+                counts[submission.taskType]++;
+            }
+        }
+        document.getElementById('clicks-completed').innerText = counts.clicks;
+        document.getElementById('youtube-completed').innerText = counts.youtube;
+        document.getElementById('tiktok-completed').innerText = counts.tiktok;
+    }
+    
+    function loadAllTaskTypes() {
+        loadTasks('clicks');
+        loadTasks('youtube');
+        loadTasks('tiktok');
+    }
+
+    // --- NAVIGATION ---
+    function navigateToPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        const correspondingNavItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+        if(correspondingNavItem) correspondingNavItem.classList.add('active');
+        
+        if (pageId !== 'profile-page') {
+             document.getElementById('profile-icon-btn').classList.remove('active');
+        } else {
+             document.getElementById('profile-icon-btn').classList.add('active');
+        }
+    }
+
+    function setupNavigation() {
+        const navItems = document.querySelectorAll('.nav-item, .task-btn-circle, .profile-icon');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const pageId = item.dataset.page;
+                if (!pageId) return;
+                navigateToPage(pageId);
+                if (pageId === 'tasks-page') renderTaskStatusPage();
+            });
+        });
+
+        document.getElementById('show-withdrawal-page-btn').addEventListener('click', () => navigateToPage('withdrawal-page'));
+        
+        // Listeners for YouTube tutorial navigation
+        document.getElementById('show-youtube-tutorial-btn').addEventListener('click', () => {
+            navigateToPage('youtube-tutorial-page');
+        });
+
+        document.getElementById('back-to-youtube-btn').addEventListener('click', () => {
+            navigateToPage('youtube-page');
+        });
+    }
+    
+    // --- HOME PAGE SLIDER ---
+    function startSlider() {
+        const slides = document.querySelectorAll('.slide');
+        if (slides.length === 0) return;
+        let currentSlide = 0;
+        setInterval(() => {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add('active');
+        }, 5000);
+    }
+    
+    // --- TASK HANDLING ---
+    function loadTasks(taskType) {
+        const taskListContainer = document.getElementById(`${taskType}-task-list`);
+        if (!taskListContainer) return;
+        taskListContainer.innerHTML = '<div class="spinner"></div>';
+        
+        db.ref(`tasks/${taskType}`).once('value', snapshot => {
+            const tasks = snapshot.val();
+            taskListContainer.innerHTML = '';
+            if (tasks) {
+                for (const taskId in tasks) {
+                    const task = tasks[taskId];
+                    const isSubmitted = userSubmissions[taskId];
+                    const taskCard = document.createElement('div');
+                    taskCard.className = `task-card ${isSubmitted ? 'completed' : ''}`;
+                    taskCard.innerHTML = `
+                        <div class="task-card-info">
+                            <h3>${task.title}</h3>
+                            <p>Reward: $${PER_TASK_EARNING}</p>
+                        </div>
+                        <button class="task-action-btn" data-url="${task.url}" data-id="${taskId}" data-type="${taskType}" data-title="${task.title}" ${isSubmitted ? 'disabled' : ''}>
+                            ${isSubmitted ? 'Submitted' : 'Start'}
+                        </button>
+                    `;
+                    taskListContainer.appendChild(taskCard);
+                }
+            } else {
+                taskListContainer.innerHTML = '<p>No tasks available right now. Check back later!</p>';
+            }
+        });
+    }
+    
+    document.querySelector('.main-content').addEventListener('click', e => {
+        if (e.target && e.target.matches('.task-action-btn:not(:disabled)')) {
+            const button = e.target;
+            const { id, type, url, title } = button.dataset;
+            document.getElementById('single-task-id').value = id;
+            document.getElementById('single-task-type').value = type;
+            document.getElementById('single-task-title').innerText = title;
+            document.getElementById('single-task-reward').innerText = `Reward: $${PER_TASK_EARNING}`;
+            document.getElementById('single-task-link').href = url;
+            document.getElementById('proof-input').value = '';
+            navigateToPage('single-task-page');
+        }
+    });
+
+    document.getElementById('proof-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const taskId = document.getElementById('single-task-id').value;
+        const taskType = document.getElementById('single-task-type').value;
+        const proof = document.getElementById('proof-input').value;
+
+        if (proof && proof.trim() !== "") submitTaskProof(taskId, taskType, proof);
+        else alert("Proof cannot be empty.");
+    });
+
+    function submitTaskProof(taskId, taskType, proof) {
+        const submission = {
+            taskId: taskId, taskType: taskType, proof: proof, status: 'review', 
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        };
+        db.ref(`user_submissions/${currentUser.uid}/${taskId}`).set(submission)
+            .then(() => {
+                alert('Proof submitted! It is now under review.');
+                loadTasks(taskType);
+                navigateToPage(`${taskType}-page`);
+            })
+            .catch(error => alert(`Error: ${error.message}`));
+    }
+    
+    // --- TASK STATUS PAGE ---
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn, .tab-content').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(`${btn.dataset.tab}-content`).classList.add('active');
+        });
+    });
+
+    function renderTaskStatusPage() {
+        const containers = {
+            review: document.getElementById('review-content'),
+            approved: document.getElementById('approved-content'),
+            rejected: document.getElementById('rejected-content')
+        };
+        Object.values(containers).forEach(c => c.innerHTML = '');
+
+        if (Object.keys(userSubmissions).length === 0) {
+             containers.review.innerHTML = '<p>No tasks submitted yet.</p>';
+             return;
+        }
+
+        db.ref('tasks').once('value', tasksSnapshot => {
+            const allTasks = tasksSnapshot.val() || {};
+            for(const taskId in userSubmissions) {
+                const submission = userSubmissions[taskId];
+                const taskData = allTasks[submission.taskType]?.[submission.taskId];
+                const taskTitle = taskData ? taskData.title : `Task ID: ${submission.taskId.substring(0,8)}...`;
+                const cardHtml = `<div class="task-card"><div class="task-card-info"><h3>${taskTitle}</h3><p>Type: ${submission.taskType} | Status: ${submission.status}</p></div></div>`;
+                if(containers[submission.status]) containers[submission.status].innerHTML += cardHtml;
+            }
+            Object.keys(containers).forEach(status => {
+                if(!containers[status].innerHTML) containers[status].innerHTML = `<p>No tasks with '${status}' status.</p>`;
+            });
+        });
+    }
+
+    // --- INVITE & PROFILE ---
+    document.getElementById('copy-link-btn').addEventListener('click', () => {
+        const link = document.getElementById('referral-link').innerText;
+        navigator.clipboard.writeText(link).then(() => {
+            alert('Referral link copied to clipboard!');
+        }).catch(() => alert('Failed to copy link.'));
+    });
+
+    document.getElementById('profile-update-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newUsername = document.getElementById('profile-username').value;
+        if (newUsername.trim() === '') {
+            alert('Username cannot be empty.'); return;
+        }
+        db.ref(`users/${currentUser.uid}/username`).set(newUsername)
+            .then(() => alert('Profile updated successfully!'))
+            .catch(error => alert(`Error: ${error.message}`));
+    });
+    
+    // --- WITHDRAWAL SYSTEM ---
+    function setupWithdrawalFormListeners() {
+        const networkSelect = document.getElementById('network-select');
+        const amountInput = document.getElementById('withdrawal-amount');
+        networkSelect.addEventListener('change', updateWithdrawalFormUI);
+        amountInput.addEventListener('input', updateWithdrawalFormUI);
+    }
+
+    function updateWithdrawalFormUI() {
+        const network = document.getElementById('network-select').value;
+        const cryptoFields = document.getElementById('crypto-fields');
+        const easypaisaFields = document.getElementById('easypaisa-fields');
+        const walletAddressInput = document.getElementById('wallet-address');
+        const easypaisaNumberInput = document.getElementById('easypaisa-number');
+        const easypaisaNameInput = document.getElementById('easypaisa-name');
+
+        cryptoFields.classList.add('hidden');
+        easypaisaFields.classList.add('hidden');
+        walletAddressInput.required = false;
+        easypaisaNumberInput.required = false;
+        easypaisaNameInput.required = false;
+
+        if (network.startsWith('USDT')) {
+            cryptoFields.classList.remove('hidden');
+            walletAddressInput.required = true;
+        } else if (network === 'Easypaisa') {
+            easypaisaFields.classList.remove('hidden');
+            easypaisaNumberInput.required = true;
+            easypaisaNameInput.required = true;
+        }
+        updateWithdrawalSummary();
+    }
+
+    function updateWithdrawalSummary() {
+        const network = document.getElementById('network-select').value;
+        const amount = parseFloat(document.getElementById('withdrawal-amount').value) || 0;
+        let fee = 0;
+
+        if (network.startsWith('USDT')) {
+            fee = amount * FEE_CRYPTO;
+        } else if (network === 'Easypaisa') {
+            fee = amount * FEE_EASYPAISA;
+        }
+
+        const receiveAmount = amount; // The user receives the amount they enter
+        const totalDeducted = amount + fee;
+
+        document.getElementById('withdrawal-fee').innerText = `$${fee.toFixed(2)}`;
+        document.getElementById('withdrawal-receive').innerText = `$${receiveAmount.toFixed(2)}`;
+        document.getElementById('withdrawal-total').innerText = `$${totalDeducted.toFixed(2)}`;
+    }
+
+    document.getElementById('withdrawal-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const network = document.getElementById('network-select').value;
+        const amount = parseFloat(document.getElementById('withdrawal-amount').value);
+        let fee = 0;
+        let withdrawalData = {};
+
+        if (isNaN(amount) || amount < MIN_WITHDRAWAL) {
+            alert(`Minimum withdrawal amount is $${MIN_WITHDRAWAL}.`); return;
+        }
+        
+        if (network.startsWith('USDT')) {
+            fee = amount * FEE_CRYPTO;
+            withdrawalData = { address: document.getElementById('wallet-address').value };
+        } else if (network === 'Easypaisa') {
+            fee = amount * FEE_EASYPAISA;
+            withdrawalData = { 
+                accountNumber: document.getElementById('easypaisa-number').value,
+                accountName: document.getElementById('easypaisa-name').value
+            };
+        } else {
+            alert('Please select a withdrawal method.'); return;
+        }
+
+        const totalDeducted = amount + fee;
+
+        if (totalDeducted > userData.balance) {
+            alert("Insufficient funds. The total amount to be deducted (including fee) exceeds your balance."); return;
+        }
+        
+        Object.assign(withdrawalData, {
+            uid: currentUser.uid, email: currentUser.email, network: network,
+            amount: amount, fee: fee, totalDeducted: totalDeducted,
+            status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        db.ref(`users/${currentUser.uid}/balance`).transaction(currentBalance => {
+            if (currentBalance >= totalDeducted) return currentBalance - totalDeducted;
+            return; 
+        }, (error, committed) => {
+            if(error) { alert('Transaction failed: ' + error); }
+            else if (!committed) { alert('Transaction aborted. Insufficient funds.'); }
+            else {
+                db.ref('withdrawals').push().set(withdrawalData).then(() => {
+                    alert('Withdrawal request submitted successfully!');
+                    document.getElementById('withdrawal-form').reset();
+                    updateWithdrawalFormUI();
+                    navigateToPage('assets-page');
+                });
+            }
+        });
+    });
+</script>
+</body>
+</html>
